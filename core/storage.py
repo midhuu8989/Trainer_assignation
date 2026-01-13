@@ -21,9 +21,19 @@ def save_excel(df: pd.DataFrame, filename: str):
     df.to_excel(tmp, index=False, engine="openpyxl")
     os.replace(tmp, path)
 
-
 def load_excel(filename: str, columns=None) -> pd.DataFrame:
     path = excel_path(filename)
     if not os.path.exists(path):
         return pd.DataFrame(columns=columns)
-    return pd.read_excel(path, engine="openpyxl")
+
+    try:
+        return pd.read_excel(path, engine="openpyxl")
+    except ImportError:
+        import streamlit as st
+        st.error("Missing dependency: openpyxl. Please install it.")
+        return pd.DataFrame(columns=columns)
+    except Exception as e:
+        import streamlit as st
+        st.error(f"Error reading {filename}: {e}")
+        return pd.DataFrame(columns=columns)
+
